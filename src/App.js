@@ -1,39 +1,47 @@
 import React from 'react';
+import axios from "axios";
+import Movie from "./Movie";
+import "./App.css"
 
-const iuLike = [
-    {
-      id: 1,
-      name: "IU",
-      image: "https://img.sbs.co.kr/newsnet/etv/upload/2019/10/11/30000635839_1280.jpg"
-    },
-    {
-      id: 2,
-      name: "fullmoon",
-      image: "https://i.pinimg.com/236x/cd/db/4a/cddb4af5193d707c327b83495810ea5f.jpg"
-    },
-    {
-      id: 3,
-      name: "jian",
-      image: "http://optimal.inven.co.kr/upload/2018/05/19/bbs/i13643437109.jpg"
+class App extends React.Component{
+    state = {
+        isLoading: true,
+        movies: []
+    };
+    getMovies = async () => {
+        const {data: {data: {movies}}} = await axios.get("https://yts.lt/api/v2/list_movies.json?sort_by=rating");
+        this.setState({movies, isLoading: false});
     }
-    ];
+    componentDidMount() {
+        this.getMovies();
+    }
 
-function IU({name, picture}) {
-  return <div>
-    <h2>I like {name}</h2>
-    <img src={picture} alt={name}/>
-  </div>
-}
-
-function App() {
-  return (
-      <div>
-        <h1>Hello!!!!</h1>
-        {iuLike.map(iu => (
-            <IU key={iu.id} name={iu.name} picture={iu.image}/>
-            ))}
-      </div>
-  );
+    render(){
+        const {isLoading, movies} = this.state;
+        return (
+            <section className="container">
+                {isLoading ? (
+                    <div className="loader">
+                        <span className="loader__text">Loading...</span>
+                    </div>
+                ) : (
+                    <div className="movies">
+                        {movies.map(movie => (
+                            <Movie
+                                key={movie.id}
+                                poster={movie.medium_cover_image}
+                                summary={movie.summary}
+                                year={movie.year}
+                                id={movie.id}
+                                title={movie.title}
+                                genres={movie.genres}
+                            />
+                        ))}
+                    </div>
+                )}
+            </section>
+        );
+    }
 }
 
 export default App;
